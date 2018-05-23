@@ -123,6 +123,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+            <version>3.1.12</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- MySQL -->
         <dependency>
             <groupId>mysql</groupId>
@@ -409,33 +415,6 @@
                         </configuration>
                     </plugin>
 
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>mysql:5.7.22</name>
-                                    <alias>pdb-mysql</alias>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <hostname>pdb-mysql</hostname>
-                                        <ports>
-                                            <port>3306:3306</port>
-                                        </ports>
-                                        <env>
-                                            <MYSQL_ROOT_PASSWORD>my-secret-pw</MYSQL_ROOT_PASSWORD>
-                                        </env>
-                                        <cmd>--max-allowed-packet=16000000 --innodb-log-file-size=160000000</cmd>
-                                        <wait>
-                                            <time>40000</time>
-                                            <log>MySQL init process done. Ready for start up.</log>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
