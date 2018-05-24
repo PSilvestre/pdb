@@ -20,10 +20,19 @@ import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
 import com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com.feedzai.commons.sql.abstraction.util.MySqlKubeClient;
+import com.feedzai.commons.sql.abstraction.util.SqlServerKubeClient;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
+import java.util.Properties;
+
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.*;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
 
 /**
  * @author Rui Vilao (rui.vilao@feedzai.com)
@@ -32,10 +41,35 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class SqlServerEngineSchemaTest extends AbstractEngineSchemaTest {
 
+    private static SqlServerKubeClient client;
+    private static String kubeJDBC;
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("sqlserver");
+    }
+
+    @BeforeClass
+    public static void initKubernetesClient(){
+        client = new SqlServerKubeClient();
+        String loc = client.createSqlServerDeploymentAndService();
+        kubeJDBC = "jdbc:sqlserver://"+loc;
+    }
+
+    @Override
+    @Before
+    public void init() throws Exception {
+
+        properties = new Properties() {
+            {
+                setProperty(JDBC, kubeJDBC);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+                setProperty(SCHEMA_POLICY, "drop-create");
+                setProperty(SCHEMA, getDefaultSchema());
+            }
+        };
     }
 
     @Override

@@ -27,6 +27,11 @@ import com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties;
 import com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com.feedzai.commons.sql.abstraction.util.MySqlKubeClient;
+import com.feedzai.commons.sql.abstraction.util.OracleKubeClient;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -34,6 +39,7 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
@@ -45,8 +51,9 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.in;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.k;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.select;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.table;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.COMPRESS_LOBS;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.*;
 import static com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest.Ieee754Support.SUPPORTED_STRINGS;
+import static oracle.net.nt.NTAdapter.NetworkAdapterType.TCP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -59,9 +66,43 @@ import static org.junit.Assert.assertTrue;
 public class OracleEngineSchemaTest extends AbstractEngineSchemaTest {
 
 
+
+    private static OracleKubeClient client;
+    private static String kubeJDBC;
+
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("oracle");
+    }
+
+    @BeforeClass
+    public static void initKubernetesClient(){
+        client = new OracleKubeClient();
+        String loc = client.createOracleDeploymentAndService();
+        String ip = loc.substring(0, loc.indexOf(":"));
+        String port = loc.substring(loc.indexOf(":")+1);
+        kubeJDBC = "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+ip+")(PORT="+port+")))(CONNECT_DATA=(SID=orcl)))";
+    }
+
+    @Override
+    @Before
+    public void init() throws Exception {
+
+        properties = new Properties() {
+            {
+                setProperty(JDBC, kubeJDBC);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+                setProperty(SCHEMA_POLICY, "drop-create");
+                setProperty(SCHEMA, getDefaultSchema());
+            }
+        };
+    }
+
+    @AfterClass
+    public static void tareDown(){
+        client.tareDown();
     }
 
     @Override

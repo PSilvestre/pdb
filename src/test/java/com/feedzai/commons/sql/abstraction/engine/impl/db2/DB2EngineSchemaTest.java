@@ -19,12 +19,18 @@ package com.feedzai.commons.sql.abstraction.engine.impl.db2;
 import com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.feedzai.commons.sql.abstraction.util.Db2KubeClient;
+import com.feedzai.commons.sql.abstraction.util.OracleKubeClient;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
+import java.util.Properties;
+
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.*;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
 
 /**
  * @author Joao Silva (joao.silva@feedzai.com)
@@ -33,11 +39,38 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class DB2EngineSchemaTest extends AbstractEngineSchemaTest {
 
+    private static Db2KubeClient client;
+    private static String kubeJDBC;
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("db2");
     }
+
+    @BeforeClass
+    public static void initKubernetesClient(){
+        client = new Db2KubeClient();
+        String loc = client.createDB2DeploymentAndService();
+        kubeJDBC = "jdbc:db2://"+loc+"/testdb";
+    }
+
+    @Override
+    @Before
+    public void init() throws Exception {
+
+        properties = new Properties() {
+            {
+                setProperty(JDBC, kubeJDBC);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+                setProperty(SCHEMA_POLICY, "drop-create");
+                setProperty(SCHEMA, config.schema);
+            }
+        };
+    }
+
+    @AfterClass
 
     protected String getDefaultSchema() {
         return config.username;

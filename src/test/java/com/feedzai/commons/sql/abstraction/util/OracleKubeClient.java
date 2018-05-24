@@ -8,14 +8,14 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-public class MySqlKubeClient {
+public class OracleKubeClient {
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
     private Service service;
     private Pod pod;
 
-    public MySqlKubeClient() {
+    public OracleKubeClient() {
         config = new ConfigBuilder().build();
         client = new DefaultKubernetesClient(config);
         ServiceAccount fabric8 = new ServiceAccountBuilder().withNewMetadata()
@@ -24,25 +24,20 @@ public class MySqlKubeClient {
                 .createOrReplace(fabric8);
         deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                .withName("mysql-dep")
+                .withName("oracle-dep")
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(1)
                 .withNewTemplate()
                 .withNewMetadata()
-                .addToLabels("app", "mysql")
+                .addToLabels("app", "oracle")
                 .endMetadata().withNewSpec()
                 .addNewContainer()
-                .withName("mysql")
-                .withImage("mysql:5.7.22")
+                .withName("oracle")
+                .withImage("docker.io/filemon/oracle_11g:latest")
                 .addNewPort()
-                .withContainerPort(3306)
+                .withContainerPort(1521)
                 .endPort()
-                .addNewEnv()
-                .withName("MYSQL_ROOT_PASSWORD")
-                .withValue("my-secret-pw")
-                .endEnv()
-                .addToCommand("docker-entrypoint.sh", "--max-allowed-packet=16000000", "--innodb-log-file-size=160000000")
                 .endContainer()
                 .endSpec()
                 .endTemplate()
@@ -51,14 +46,14 @@ public class MySqlKubeClient {
         System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
         service = new ServiceBuilder()
                 .withNewMetadata()
-                .withName("mysql")
+                .withName("oracle")
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(3306).withNewTargetPort(3306).endPort()
-                .addToSelector("app", "mysql").endSpec().build();
+                .withPort(1521).withNewTargetPort(1521).endPort()
+                .addToSelector("app", "oracle").endSpec().build();
 
     }
 
-    public String createMySqlDeploymentAndService() {
+    public String createOracleDeploymentAndService() {
         deployment = client.extensions().deployments().inNamespace("default")
                 .create(deployment);
         String loc = null;
@@ -83,9 +78,8 @@ public class MySqlKubeClient {
     }
 
     public void tareDown(){
-        client.services().inNamespace("default").withField("metadata.name", "mysql").delete();
-        client.extensions().deployments().inNamespace("default").withField("metadata.name", "mysql-dep").delete();
-       // client.pods().withName(pod.getMetadata().getName()).delete();
+        client.services().inNamespace("default").withField("metadata.name", "oracle").delete();
+        client.extensions().deployments().inNamespace("default").withField("metadata.name", "oracle-dep").delete();
+        // client.pods().withName(pod.getMetadata().getName()).delete();
     }
-
 }

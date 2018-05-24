@@ -26,6 +26,7 @@ import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfigurati
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
 import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
 
+import com.feedzai.commons.sql.abstraction.util.SqlServerKubeClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -53,11 +55,7 @@ import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.entry;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.eq;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.select;
 import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.table;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.JDBC;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.PASSWORD;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
-import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.USERNAME;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -68,6 +66,9 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class SqlServerEngineGeneralTest {
 
+    private static SqlServerKubeClient client;
+    private static String kubeJDBC;
+
     private static final String USER_TABLE = "USER";
     private static final String ID_COLUMN = "ID";
     private static final String NAME_COLUMN = "NAME";
@@ -75,6 +76,14 @@ public class SqlServerEngineGeneralTest {
 
     protected DatabaseEngine engine;
     protected Properties properties;
+
+    @BeforeClass
+    public static void initKubernetesClient(){
+        client = new SqlServerKubeClient();
+        String loc = client.createSqlServerDeploymentAndService();
+        kubeJDBC = "jdbc:sqlserver://"+loc;
+    }
+
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
@@ -89,7 +98,7 @@ public class SqlServerEngineGeneralTest {
         properties = new Properties() {
 
             {
-                setProperty(JDBC, config.jdbc);
+                setProperty(JDBC, kubeJDBC);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);

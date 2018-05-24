@@ -59,8 +59,7 @@ public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
     @Override
     @Before
     public void init() throws Exception {
-        System.err.println("OLDCONFIG: " + config.jdbc);
-        System.err.println("NEWCONFIG: " + kubeJDBC);
+
         properties = new Properties() {
             {
                 setProperty(JDBC, kubeJDBC);

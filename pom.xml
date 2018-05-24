@@ -432,34 +432,6 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
-
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>microsoft/mssql-server-linux:2017-CU6</name>
-                                    <alias>pdb-sqlserver</alias>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <hostname>pdb-sqlserver</hostname>
-                                        <ports>
-                                            <port>1433:1433</port>
-                                        </ports>
-                                        <env>
-                                            <ACCEPT_EULA>Y</ACCEPT_EULA>
-                                            <SA_PASSWORD>AAaa11!!</SA_PASSWORD>
-                                        </env>
-                                        <wait>
-                                            <time>40000</time>
-                                            <log>Service Broker manager has started</log>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -478,32 +450,6 @@
                         </configuration>
                     </plugin>
 
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>postgres:9.6.8</name>
-                                    <alias>pdb-postgresql</alias>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <hostname>pdb-postgresql</hostname>
-                                        <ports>
-                                            <port>5432:5432</port>
-                                        </ports>
-                                        <env>
-                                            <POSTGRES_PASSWORD>pgpassword</POSTGRES_PASSWORD>
-                                        </env>
-                                        <wait>
-                                            <time>40000</time>
-                                            <log>PostgreSQL init process complete; ready for start up</log>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -527,29 +473,6 @@
                         </configuration>
                     </plugin>
 
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>docker.io/filemon/oracle_11g:latest</name>
-                                    <alias>pdb-oracle</alias>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <hostname>pdb-oracle</hostname>
-                                        <ports>
-                                            <port>1521:1521</port>
-                                        </ports>
-                                        <wait>
-                                            <time>40000</time>
-                                            <log>Database instance "orcl" warm started</log>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -583,38 +506,6 @@
                         </configuration>
                     </plugin>
 
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>ibmcom/db2express-c:10.5.0.5-3.10.0</name>
-                                    <alias>pdb-db2</alias>
-                                    <run>
-                                        <namingStrategy>alias</namingStrategy>
-                                        <hostname>pdb-db2</hostname>
-                                        <ports>
-                                            <port>50000:50000</port>
-                                        </ports>
-                                        <env>
-                                            <LICENSE>accept</LICENSE>
-                                            <DB2INST1_PASSWORD>db2inst1-pwd</DB2INST1_PASSWORD>
-                                        </env>
-                                        <entrypoint>
-                                            <arg>/bin/bash</arg>
-                                            <arg>-c</arg>
-                                            <arg>echo -e "$DB2INST1_PASSWORD\n$DB2INST1_PASSWORD" | passwd db2inst1; /usr/bin/su - db2inst1 -c 'db2start; db2 create database testdb; tail -f /dev/null'</arg>
-                                        </entrypoint>
-                                        <wait>
-                                            <time>120000</time>
-                                            <log>The CREATE DATABASE command completed successfully.</log>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
         </profile>

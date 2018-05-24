@@ -18,14 +18,24 @@ package com.feedzai.commons.sql.abstraction.engine.impl.postgresql;
 
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
 import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
+import com.feedzai.commons.sql.abstraction.engine.impl.PostgreSqlEngine;
 import com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com.feedzai.commons.sql.abstraction.util.MySqlKubeClient;
+import com.feedzai.commons.sql.abstraction.util.PostGresKubeClient;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
+import java.util.Properties;
 
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.*;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.SCHEMA_POLICY;
 import static com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngineSchemaTest.Ieee754Support.SUPPORTED;
 
 /**
@@ -34,11 +44,39 @@ import static com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngine
  */
 @RunWith(Parameterized.class)
 public class PostgreSqlEngineSchemaTest extends AbstractEngineSchemaTest {
-
+    private static PostGresKubeClient client;
+    private static String kubeJDBC;
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("postgresql");
+    }
+    @BeforeClass
+    public static void initKubernetesClient(){
+        client = new PostGresKubeClient();
+        String loc = client.createPostgresqlDeploymentAndService();
+        kubeJDBC = "jdbc:postgresql://"+loc+"/postgres";
+    }
+
+    @Override
+    @Before
+    public void init() throws Exception {
+
+        properties = new Properties() {
+            {
+                setProperty(JDBC, kubeJDBC);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+                setProperty(SCHEMA_POLICY, "drop-create");
+                setProperty(SCHEMA, getDefaultSchema());
+            }
+        };
+    }
+
+    @AfterClass
+    public static void tareDown(){
+        client.tareDown();
     }
 
     @Override
