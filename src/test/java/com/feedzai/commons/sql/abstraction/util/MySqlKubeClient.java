@@ -42,7 +42,7 @@ public class MySqlKubeClient {
                 .withName("MYSQL_ROOT_PASSWORD")
                 .withValue("my-secret-pw")
                 .endEnv()
-                .addToCommand("mysqld", "--max-allowed-packet=16000000", "--innodb-log-file-size=160000000")
+                .addToCommand("/entrypoint.sh","mysqld","--max-allowed-packet=16000000", "--innodb-log-file-size=160000000")
                 .endContainer()
                 .endSpec()
                 .endTemplate()
@@ -73,6 +73,7 @@ public class MySqlKubeClient {
 
         int port = service.getSpec().getPorts().get(0).getNodePort();
         System.err.print("SERVER: "+loc+":"+port);
+        System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
         try {
             Thread.sleep(42*1000);
         } catch (InterruptedException e) {

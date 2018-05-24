@@ -43,18 +43,17 @@ public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
 
     private static MySqlKubeClient client;
     private static String kubeJDBC;
-
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("mysql");
     }
 
-    @BeforeClass
+   /*@BeforeClass
     public static void initKubernetesClient(){
         client = new MySqlKubeClient();
         String loc = client.createMySqlDeploymentAndService();
         kubeJDBC = "jdbc:mysql://"+loc+"/mysql?useSSL=false";
-    }
+    }*/
 
     @Override
     @Before
@@ -62,7 +61,7 @@ public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
 
         properties = new Properties() {
             {
-                setProperty(JDBC, kubeJDBC);
+                setProperty(JDBC, config.jdbc);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);
@@ -72,10 +71,10 @@ public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
         };
     }
 
-    @AfterClass
+    /*@AfterClass
     public static void tareDown(){
         client.tareDown();
-    }
+    }*/
 
     @Override
     protected String getSchema() {

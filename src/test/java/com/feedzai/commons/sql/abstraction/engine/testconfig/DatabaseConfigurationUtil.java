@@ -20,10 +20,7 @@ import com.google.common.collect.Multimaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -138,6 +135,7 @@ public class DatabaseConfigurationUtil {
         properties.load(is);
 
         final Map<String, String> config = Maps.fromProperties(properties);
+
         final Map<String, Collection<String>> propsByVendor = groupByVendor(config);
 
         this.configs = Maps.transformEntries(
@@ -163,7 +161,24 @@ public class DatabaseConfigurationUtil {
             final String split;
             switch (split = v.split("\\.")[1]) {
                 case "jdbc":
-                    builder.jdbc(prop);
+                    //builder.jdbc(prop);
+                    try {
+                        FileInputStream fis = new FileInputStream("locations");
+                        BufferedReader input = new BufferedReader(new InputStreamReader(fis));
+                        String line ="";
+                        while(line != null){
+                            line = input.readLine();
+                            if(line.startsWith(vendor)) {
+                                builder.jdbc(line.substring(vendor.length() + 1));
+                                break;
+                            }
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
                     break;
                 case "engine":
                     builder.engine(prop);

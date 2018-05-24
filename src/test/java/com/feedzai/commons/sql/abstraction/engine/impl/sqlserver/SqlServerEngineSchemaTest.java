@@ -27,6 +27,10 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -49,20 +53,20 @@ public class SqlServerEngineSchemaTest extends AbstractEngineSchemaTest {
         return DatabaseTestUtil.loadConfigurations("sqlserver");
     }
 
-    @BeforeClass
+   /* @BeforeClass
     public static void initKubernetesClient(){
         client = new SqlServerKubeClient();
         String loc = client.createSqlServerDeploymentAndService();
         kubeJDBC = "jdbc:sqlserver://"+loc;
     }
-
+*/
     @Override
     @Before
     public void init() throws Exception {
 
         properties = new Properties() {
             {
-                setProperty(JDBC, kubeJDBC);
+                setProperty(JDBC, config.jdbc);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);

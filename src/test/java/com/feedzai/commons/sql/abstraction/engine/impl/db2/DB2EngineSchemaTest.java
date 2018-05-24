@@ -71,6 +71,9 @@ public class DB2EngineSchemaTest extends AbstractEngineSchemaTest {
     }
 
     @AfterClass
+    public static void tareDown(){
+        client.tareDown();
+    }
 
     protected String getDefaultSchema() {
         return config.username;

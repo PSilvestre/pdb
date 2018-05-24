@@ -77,13 +77,13 @@ public class SqlServerEngineGeneralTest {
     protected DatabaseEngine engine;
     protected Properties properties;
 
-    @BeforeClass
+ /*   @BeforeClass
     public static void initKubernetesClient(){
         client = new SqlServerKubeClient();
         String loc = client.createSqlServerDeploymentAndService();
         kubeJDBC = "jdbc:sqlserver://"+loc;
     }
-
+*/
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
@@ -98,7 +98,7 @@ public class SqlServerEngineGeneralTest {
         properties = new Properties() {
 
             {
-                setProperty(JDBC, kubeJDBC);
+                setProperty(JDBC, config.jdbc);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);
