@@ -42,7 +42,7 @@ public class MySqlKubeClient {
                 .withName("MYSQL_ROOT_PASSWORD")
                 .withValue("my-secret-pw")
                 .endEnv()
-                .addToCommand("entrypoint.sh", "--max-allowed-packet=16000000", "--innodb-log-file-size=160000000")
+                .addToCommand("mysqld", "--max-allowed-packet=16000000", "--innodb-log-file-size=160000000")
                 .endContainer()
                 .endSpec()
                 .endTemplate()
