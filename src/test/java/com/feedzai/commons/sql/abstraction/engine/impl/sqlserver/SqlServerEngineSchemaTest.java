@@ -45,21 +45,14 @@ import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProper
 @RunWith(Parameterized.class)
 public class SqlServerEngineSchemaTest extends AbstractEngineSchemaTest {
 
-    private static SqlServerKubeClient client;
-    private static String kubeJDBC;
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("sqlserver");
     }
 
-   /* @BeforeClass
-    public static void initKubernetesClient(){
-        client = new SqlServerKubeClient();
-        String loc = client.createSqlServerDeploymentAndService();
-        kubeJDBC = "jdbc:sqlserver://"+loc;
-    }
-*/
+
+
     @Override
     @Before
     public void init() throws Exception {

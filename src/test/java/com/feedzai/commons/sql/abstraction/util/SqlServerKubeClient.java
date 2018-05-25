@@ -8,7 +8,11 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-public class SqlServerKubeClient {
+public class SqlServerKubeClient implements KubernetesDBDeployClient{
+    public static final String SERVICE_NAME = "sqlserver";
+    public static final String DEPLOYMENT_NAME = "sqlserver-dep";
+    public static final String NAMESPACE = "default";
+    public static final String VENDOR = "sqlserver";
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
@@ -24,13 +28,13 @@ public class SqlServerKubeClient {
                 .createOrReplace(fabric8);
         deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                .withName("sqlserver-dep")
+                .withName(DEPLOYMENT_NAME)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(1)
                 .withNewTemplate()
                 .withNewMetadata()
-                .addToLabels("app", "sqlserver")
+                .addToLabels("app", SERVICE_NAME)
                 .endMetadata().withNewSpec()
                 .addNewContainer()
                 .withName("sqlserver")
@@ -54,41 +58,58 @@ public class SqlServerKubeClient {
 
        service = new ServiceBuilder()
                 .withNewMetadata()
-                .withName("sqlserver")
+                .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
                 .withPort(1433).withNewTargetPort(1433).endPort()
-                .addToSelector("app", "sqlserver").endSpec().build();
+                .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
 
-    public String createSqlServerDeploymentAndService() {
-        deployment = client.extensions().deployments().inNamespace("default")
+
+    @Override
+    public void createService(){
+        service = client.services().inNamespace(NAMESPACE).create(service);
+    }
+    @Override
+    public void createDeployment() {
+        deployment = client.extensions().deployments().inNamespace(NAMESPACE)
                 .create(deployment);
-        String loc = null;
-        while (loc == null)
+    }
+
+    @Override
+    public int getServicePort() {
+        return  service.getSpec().getPorts().get(0).getNodePort();
+    }
+
+    @Override
+    public String getServiceIP() {
+        String ip = null;
+        while (ip == null)
             for (Pod p : client.pods().list().getItems())
-                if (p.getMetadata().getName().startsWith("sqlserver")) {
-                    loc = p.getStatus().getHostIP();
-                    pod = p;
-                }
-
-        service = client.services().inNamespace("default").create(service);
-
-        int port = service.getSpec().getPorts().get(0).getNodePort();
-        System.err.print("SERVER: "+loc+":"+port);
-        try {
-            Thread.sleep(42*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return loc + ":"+ port;
-
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getHostIP();
+        return ip;
     }
 
-    public void tareDown(){
-        client.services().inNamespace("default").withField("metadata.name", "sqlserver").delete();
-        client.extensions().deployments().inNamespace("default").withField("metadata.name", "sqlserver-dep").delete();
-       // client.pods().withName(pod.getMetadata().getName()).delete();
+    @Override
+    public String getFullJDBC() {
+        return "sqlserver=jdbc:sqlserver://" + getServiceIP()+":" + getServicePort();
     }
 
+
+    @Override
+    public void tearDown(){
+        client.services().inNamespace(NAMESPACE).withField("metadata.name", SERVICE_NAME).delete();
+        client.extensions().deployments().inNamespace(NAMESPACE).withField("metadata.name", DEPLOYMENT_NAME).delete();
+    }
+
+    @Override
+    public String getVendor() {
+        return VENDOR;
+    }
+
+    @Override
+    public long getSleepTime() {
+        return 40000;
+    }
 }

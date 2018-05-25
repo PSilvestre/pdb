@@ -44,19 +44,12 @@ import static com.feedzai.commons.sql.abstraction.engine.impl.abs.AbstractEngine
  */
 @RunWith(Parameterized.class)
 public class PostgreSqlEngineSchemaTest extends AbstractEngineSchemaTest {
-    private static PostGresKubeClient client;
-    private static String kubeJDBC;
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("postgresql");
     }
-    @BeforeClass
-    public static void initKubernetesClient(){
-        client = new PostGresKubeClient();
-        String loc = client.createPostgresqlDeploymentAndService();
-        kubeJDBC = "jdbc:postgresql://"+loc+"/postgres";
-    }
+
 
     @Override
     @Before
@@ -64,7 +57,7 @@ public class PostgreSqlEngineSchemaTest extends AbstractEngineSchemaTest {
 
         properties = new Properties() {
             {
-                setProperty(JDBC, kubeJDBC);
+                setProperty(JDBC, config.jdbc);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);
@@ -72,11 +65,6 @@ public class PostgreSqlEngineSchemaTest extends AbstractEngineSchemaTest {
                 setProperty(SCHEMA, getDefaultSchema());
             }
         };
-    }
-
-    @AfterClass
-    public static void tareDown(){
-        client.tareDown();
     }
 
     @Override

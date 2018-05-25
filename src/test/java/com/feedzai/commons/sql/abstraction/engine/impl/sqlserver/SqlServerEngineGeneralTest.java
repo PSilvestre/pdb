@@ -66,8 +66,6 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class SqlServerEngineGeneralTest {
 
-    private static SqlServerKubeClient client;
-    private static String kubeJDBC;
 
     private static final String USER_TABLE = "USER";
     private static final String ID_COLUMN = "ID";
@@ -77,13 +75,7 @@ public class SqlServerEngineGeneralTest {
     protected DatabaseEngine engine;
     protected Properties properties;
 
- /*   @BeforeClass
-    public static void initKubernetesClient(){
-        client = new SqlServerKubeClient();
-        String loc = client.createSqlServerDeploymentAndService();
-        kubeJDBC = "jdbc:sqlserver://"+loc;
-    }
-*/
+
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {

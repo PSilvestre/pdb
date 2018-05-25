@@ -8,7 +8,11 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-public class OracleKubeClient {
+public class OracleKubeClient implements KubernetesDBDeployClient{
+    public static final String SERVICE_NAME = "oracle";
+    public static final String DEPLOYMENT_NAME = "oracle-dep";
+    public static final String NAMESPACE = "default";
+    public static final String VENDOR = "oracle";
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
@@ -24,13 +28,13 @@ public class OracleKubeClient {
                 .createOrReplace(fabric8);
         deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                .withName("oracle-dep")
+                .withName(DEPLOYMENT_NAME)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(1)
                 .withNewTemplate()
                 .withNewMetadata()
-                .addToLabels("app", "oracle")
+                .addToLabels("app", SERVICE_NAME)
                 .endMetadata().withNewSpec()
                 .addNewContainer()
                 .withName("oracle")
@@ -46,40 +50,57 @@ public class OracleKubeClient {
         System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
         service = new ServiceBuilder()
                 .withNewMetadata()
-                .withName("oracle")
+                .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
                 .withPort(1521).withNewTargetPort(1521).endPort()
-                .addToSelector("app", "oracle").endSpec().build();
+                .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
 
-    public String createOracleDeploymentAndService() {
-        deployment = client.extensions().deployments().inNamespace("default")
+    @Override
+    public void createService(){
+        service = client.services().inNamespace(NAMESPACE).create(service);
+    }
+    @Override
+    public void createDeployment() {
+        deployment = client.extensions().deployments().inNamespace(NAMESPACE)
                 .create(deployment);
-        String loc = null;
-        while (loc == null)
-            for (Pod p : client.pods().list().getItems())
-                if (p.getMetadata().getName().startsWith("mysql")) {
-                    loc = p.getStatus().getHostIP();
-                    pod = p;
-                }
-
-        service = client.services().inNamespace("default").create(service);
-
-        int port = service.getSpec().getPorts().get(0).getNodePort();
-        System.err.print("SERVER: "+loc+":"+port);
-        try {
-            Thread.sleep(42*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return loc + ":"+ port;
-
     }
 
-    public void tareDown(){
-        client.services().inNamespace("default").withField("metadata.name", "oracle").delete();
-        client.extensions().deployments().inNamespace("default").withField("metadata.name", "oracle-dep").delete();
-        // client.pods().withName(pod.getMetadata().getName()).delete();
+    @Override
+    public int getServicePort() {
+        return  service.getSpec().getPorts().get(0).getNodePort();
+    }
+
+    @Override
+    public String getServiceIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getHostIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullJDBC() {
+        return "oracle=jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+getServiceIP()+")(PORT="+getServicePort()+")))(CONNECT_DATA=(SID=orcl)))";
+    }
+
+
+    @Override
+    public void tearDown(){
+        client.services().inNamespace(NAMESPACE).withField("metadata.name", SERVICE_NAME).delete();
+        client.extensions().deployments().inNamespace(NAMESPACE).withField("metadata.name", DEPLOYMENT_NAME).delete();
+    }
+
+    @Override
+    public String getVendor() {
+        return VENDOR;
+    }
+
+    @Override
+    public long getSleepTime() {
+        return 40000;
     }
 }

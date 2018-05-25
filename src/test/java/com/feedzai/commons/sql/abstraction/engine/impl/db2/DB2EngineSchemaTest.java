@@ -39,20 +39,13 @@ import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProper
 @RunWith(Parameterized.class)
 public class DB2EngineSchemaTest extends AbstractEngineSchemaTest {
 
-    private static Db2KubeClient client;
-    private static String kubeJDBC;
+
 
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("db2");
     }
 
-    @BeforeClass
-    public static void initKubernetesClient(){
-        client = new Db2KubeClient();
-        String loc = client.createDB2DeploymentAndService();
-        kubeJDBC = "jdbc:db2://"+loc+"/testdb";
-    }
 
     @Override
     @Before
@@ -60,7 +53,7 @@ public class DB2EngineSchemaTest extends AbstractEngineSchemaTest {
 
         properties = new Properties() {
             {
-                setProperty(JDBC, kubeJDBC);
+                setProperty(JDBC, config.jdbc);
                 setProperty(USERNAME, config.username);
                 setProperty(PASSWORD, config.password);
                 setProperty(ENGINE, config.engine);
@@ -70,10 +63,6 @@ public class DB2EngineSchemaTest extends AbstractEngineSchemaTest {
         };
     }
 
-    @AfterClass
-    public static void tareDown(){
-        client.tareDown();
-    }
 
     protected String getDefaultSchema() {
         return config.username;

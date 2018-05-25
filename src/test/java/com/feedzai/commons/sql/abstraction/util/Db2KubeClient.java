@@ -8,12 +8,17 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-public class Db2KubeClient {
+public class Db2KubeClient implements KubernetesDBDeployClient{
+    public static final String SERVICE_NAME = "db2";
+    public static final String DEPLOYMENT_NAME = "db2-dep";
+    public static final String NAMESPACE = "default";
+    public static final String VENDOR = "db2";
+
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
     private Service service;
-    private Pod pod;
+
 
     public Db2KubeClient() {
         config = new ConfigBuilder().build();
@@ -24,13 +29,13 @@ public class Db2KubeClient {
                 .createOrReplace(fabric8);
         deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                .withName("db2-dep")
+                .withName(DEPLOYMENT_NAME)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(1)
                 .withNewTemplate()
                 .withNewMetadata()
-                .addToLabels("app", "db2")
+                .addToLabels("app", SERVICE_NAME)
                 .endMetadata().withNewSpec()
                 .addNewContainer()
                 .withName("db2")
@@ -46,7 +51,7 @@ public class Db2KubeClient {
                 .withName("DB2INST1_PASSWORD")
                 .withValue("db2inst1-pwd")
                 .endEnv()
-                .addToCommand("/bin/bash", "-c", "echo", "-e", "\"$DB2INST1_PASSWORD\\n$DB2INST1_PASSWORD\" | passwd db2inst1;", "/usr/bin/su - db2inst1 -c \'db2start; db2 create database testdb; tail -f /dev/null\'")
+                .addToCommand("/bin/bash -c echo -e \"$DB2INST1_PASSWORD\\n$DB2INST1_PASSWORD\" | passwd db2inst1; /usr/bin/su - db2inst1 -c \'db2start; db2 create database testdb; tail -f /dev/null\'")
                 .endContainer()
                 .endSpec()
                 .endTemplate()
@@ -55,40 +60,59 @@ public class Db2KubeClient {
         System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
         service = new ServiceBuilder()
                 .withNewMetadata()
-                .withName("db2")
+                .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
                 .withPort(50000).withNewTargetPort(50000).endPort()
-                .addToSelector("app", "db2").endSpec().build();
+                .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
 
-    public String createDB2DeploymentAndService() {
-        deployment = client.extensions().deployments().inNamespace("default")
+
+    @Override
+    public void createService() {
+        service = client.services().inNamespace(NAMESPACE).create(service);
+    }
+
+    @Override
+    public void createDeployment() {
+        deployment = client.extensions().deployments().inNamespace(NAMESPACE)
                 .create(deployment);
-        String loc = null;
-        while (loc == null)
+    }
+
+    @Override
+    public int getServicePort() {
+        return  service.getSpec().getPorts().get(0).getNodePort();
+    }
+
+    @Override
+    public String getServiceIP() {
+        String ip = null;
+        while (ip == null)
             for (Pod p : client.pods().list().getItems())
-                if (p.getMetadata().getName().startsWith("db2")) {
-                    loc = p.getStatus().getHostIP();
-                    pod = p;
-                }
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getHostIP();
+        return ip;
+    }
 
-        service = client.services().inNamespace("default").create(service);
+    @Override
+    public String getFullJDBC() {
+        return "db2=jdbc:db2://"+getServiceIP()+":"+getServicePort()+"/testdb";
+    }
 
-        int port = service.getSpec().getPorts().get(0).getNodePort();
-        System.err.print("SERVER: "+loc+":"+port);
-        try {
-            Thread.sleep(120*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return loc + ":"+ port;
+    @Override
+    public void tearDown() {
+        client.services().inNamespace(NAMESPACE).withField("metadata.name", SERVICE_NAME).delete();
+        client.extensions().deployments().inNamespace(NAMESPACE).withField("metadata.name", DEPLOYMENT_NAME).delete();
 
     }
 
-    public void tareDown(){
-        client.services().inNamespace("default").withField("metadata.name", "db2").delete();
-        client.extensions().deployments().inNamespace("default").withField("metadata.name", "db2-dep").delete();
-        // client.pods().withName(pod.getMetadata().getName()).delete();
+    @Override
+    public String getVendor() {
+        return VENDOR;
+    }
+
+    @Override
+    public long getSleepTime() {
+        return 120000;
     }
 }

@@ -8,29 +8,35 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-public class MySqlKubeClient {
+public class MySqlKubeClient implements KubernetesDBDeployClient{
+    public static final String SERVICE_NAME = "mysql";
+    public static final String DEPLOYMENT_NAME = "mysql-dep";
+    public static final String NAMESPACE = "default";
+    private static final String VENDOR = "mysql";
+
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
     private Service service;
-    private Pod pod;
 
     public MySqlKubeClient() {
         config = new ConfigBuilder().build();
         client = new DefaultKubernetesClient(config);
+
         ServiceAccount fabric8 = new ServiceAccountBuilder().withNewMetadata()
                 .withName("fabric8").endMetadata().build();
-        client.serviceAccounts().inNamespace("default")
+        client.serviceAccounts().inNamespace(NAMESPACE)
                 .createOrReplace(fabric8);
+
         deployment = new DeploymentBuilder()
                 .withNewMetadata()
-                .withName("mysql-dep")
+                .withName(DEPLOYMENT_NAME)
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(1)
                 .withNewTemplate()
                 .withNewMetadata()
-                .addToLabels("app", "mysql")
+                .addToLabels("app", SERVICE_NAME)
                 .endMetadata().withNewSpec()
                 .addNewContainer()
                 .withName("mysql")
@@ -48,45 +54,60 @@ public class MySqlKubeClient {
                 .endTemplate()
                 .endSpec()
                 .build();
-        System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
+
         service = new ServiceBuilder()
                 .withNewMetadata()
-                .withName("mysql")
+                .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
                 .withPort(3306).withNewTargetPort(3306).endPort()
-                .addToSelector("app", "mysql").endSpec().build();
+                .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
-
-    public String createMySqlDeploymentAndService() {
-        deployment = client.extensions().deployments().inNamespace("default")
+    @Override
+    public void createService(){
+        service = client.services().inNamespace(NAMESPACE).create(service);
+    }
+    @Override
+    public void createDeployment() {
+        deployment = client.extensions().deployments().inNamespace(NAMESPACE)
                 .create(deployment);
-        String loc = null;
-        while (loc == null)
-            for (Pod p : client.pods().list().getItems())
-                if (p.getMetadata().getName().startsWith("mysql")) {
-                    loc = p.getStatus().getHostIP();
-                    pod = p;
-                }
-
-        service = client.services().inNamespace("default").create(service);
-
-        int port = service.getSpec().getPorts().get(0).getNodePort();
-        System.err.print("SERVER: "+loc+":"+port);
-        System.err.println("COMMAND: " + deployment.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand());
-        try {
-            Thread.sleep(42*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return loc + ":"+ port;
-
     }
 
-    public void tareDown(){
-        client.services().inNamespace("default").withField("metadata.name", "mysql").delete();
-        client.extensions().deployments().inNamespace("default").withField("metadata.name", "mysql-dep").delete();
-       // client.pods().withName(pod.getMetadata().getName()).delete();
+    @Override
+    public int getServicePort() {
+        return  service.getSpec().getPorts().get(0).getNodePort();
+    }
+
+    @Override
+    public String getServiceIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getHostIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullJDBC() {
+        return "mysql=jdbc:mysql://"+getServiceIP()+":"+getServicePort()+"/mysql?useSSL=false";
+    }
+
+
+    @Override
+    public void tearDown(){
+        client.services().inNamespace(NAMESPACE).withField("metadata.name", SERVICE_NAME).delete();
+        client.extensions().deployments().inNamespace(NAMESPACE).withField("metadata.name", DEPLOYMENT_NAME).delete();
+    }
+
+    @Override
+    public String getVendor() {
+        return VENDOR;
+    }
+
+    @Override
+    public long getSleepTime() {
+        return 40000;
     }
 
 }

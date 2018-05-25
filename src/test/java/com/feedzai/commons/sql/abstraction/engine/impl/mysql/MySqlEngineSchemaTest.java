@@ -41,19 +41,12 @@ import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProper
 @RunWith(Parameterized.class)
 public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
 
-    private static MySqlKubeClient client;
-    private static String kubeJDBC;
     @Parameterized.Parameters
     public static Collection<DatabaseConfiguration> data() throws Exception {
         return DatabaseTestUtil.loadConfigurations("mysql");
     }
 
-   /*@BeforeClass
-    public static void initKubernetesClient(){
-        client = new MySqlKubeClient();
-        String loc = client.createMySqlDeploymentAndService();
-        kubeJDBC = "jdbc:mysql://"+loc+"/mysql?useSSL=false";
-    }*/
+
 
     @Override
     @Before
@@ -70,11 +63,6 @@ public class MySqlEngineSchemaTest extends AbstractEngineSchemaTest {
             }
         };
     }
-
-    /*@AfterClass
-    public static void tareDown(){
-        client.tareDown();
-    }*/
 
     @Override
     protected String getSchema() {
