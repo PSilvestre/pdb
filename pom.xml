@@ -126,6 +126,7 @@
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -422,9 +423,13 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
-                                <instances>mysql</instances>
+                                <systemProperty>
+                                    <key>instances</key>
+                                    <value>mysql</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -476,9 +481,13 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
-                                <instances>sqlserver</instances>
+                                <systemProperty>
+                                    <key>instances</key>
+                                    <value>mysql</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -529,9 +538,13 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
-                                <instances>postgresql</instances>
+                                <systemProperty>
+                                    <key>instances</key>
+                                    <value>mysql</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -587,9 +600,13 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
-                                <instances>oracle</instances>
+                                <systemProperty>
+                                    <key>instances</key>
+                                    <value>mysql</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -655,9 +672,13 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
-                                <instances>db2</instances>
+                                <systemProperty>
+                                    <key>instances</key>
+                                    <value>mysql</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                         <executions>

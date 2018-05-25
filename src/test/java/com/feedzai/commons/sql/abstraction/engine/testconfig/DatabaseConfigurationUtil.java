@@ -170,8 +170,6 @@ public class DatabaseConfigurationUtil {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                     break;
                 case "engine":
                     builder.engine(prop);
