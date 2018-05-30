@@ -12,7 +12,7 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
     public static final String SERVICE_NAME = "postgresql";
     public static final String DEPLOYMENT_NAME = "postgresql-dep";
     public static final String NAMESPACE = "default";
-    public static final String VENDOR = "postgres";
+    public static final String VENDOR = "postgresql";
 
     private Config config;
     private KubernetesClient client;
@@ -87,7 +87,7 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
 
     @Override
     public String getFullJDBC() {
-        return "postgres=jdbc:postgresql://"+getServiceIP()+":"+getServicePort()+"/postgres";
+        return "postgresql.jdbc=jdbc:postgresql://"+getServiceIP()+":"+getServicePort()+"/postgres";
     }
 
 

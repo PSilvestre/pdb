@@ -93,7 +93,7 @@ public class SqlServerKubeClient implements KubernetesDBDeployClient{
 
     @Override
     public String getFullJDBC() {
-        return "sqlserver=jdbc:sqlserver://" + getServiceIP()+":" + getServicePort();
+        return "sqlserver.jdbc=jdbc:sqlserver://" + getServiceIP()+":" + getServicePort();
     }
 
 

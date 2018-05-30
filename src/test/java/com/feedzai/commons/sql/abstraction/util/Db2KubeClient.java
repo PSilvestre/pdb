@@ -96,7 +96,7 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
 
     @Override
     public String getFullJDBC() {
-        return "db2=jdbc:db2://"+getServiceIP()+":"+getServicePort()+"/testdb";
+        return "db2.jdbc=jdbc:db2://"+getServiceIP()+":"+getServicePort()+"/testdb";
     }
 
     @Override

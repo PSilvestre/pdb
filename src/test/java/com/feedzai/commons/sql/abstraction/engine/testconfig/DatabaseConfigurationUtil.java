@@ -163,9 +163,11 @@ public class DatabaseConfigurationUtil {
                 case "jdbc":
                     //builder.jdbc(prop);
                     try {
+                        System.err.println("VENDOR: "+ vendor);
                         FileInputStream fis = new FileInputStream(vendor);
                         BufferedReader input = new BufferedReader(new InputStreamReader(fis));
-                        builder.jdbc(input.readLine());
+                        String line = input.readLine();
+                        builder.jdbc(line.substring(line.indexOf("=")+1));
 
                     } catch (IOException e) {
                         e.printStackTrace();

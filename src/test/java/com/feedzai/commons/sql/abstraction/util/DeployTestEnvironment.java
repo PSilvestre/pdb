@@ -23,7 +23,7 @@ public class DeployTestEnvironment {
                 case "oracle":
                     threads.add(new Thread(() -> apply(new OracleKubeClient(), command)));
                     break;
-                case "postgres":
+                case "postgresql":
                     threads.add(new Thread(() -> apply(new PostGresKubeClient(), command)));
                     break;
                 case "db2":

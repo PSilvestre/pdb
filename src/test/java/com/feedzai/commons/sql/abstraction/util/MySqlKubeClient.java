@@ -90,7 +90,7 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
 
     @Override
     public String getFullJDBC() {
-        return "mysql=jdbc:mysql://"+getServiceIP()+":"+getServicePort()+"/mysql?useSSL=false";
+        return "mysql.jdbc=jdbc:mysql://"+getServiceIP()+":"+getServicePort()+"/mysql?useSSL=false";
     }
 
 

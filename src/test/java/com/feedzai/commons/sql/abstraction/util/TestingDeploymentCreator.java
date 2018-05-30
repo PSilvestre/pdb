@@ -10,9 +10,16 @@ public class TestingDeploymentCreator {
 
     private static List<KubernetesDBDeployClient> deployments;
 
+    public static void main(String[] args){
+        start();
+        Scanner sc = new Scanner(System.in);
+        sc.nextLine();
+        tearDown();
+    }
+
 
     public static void start(){
-        deployments = new LinkedList<KubernetesDBDeployClient>(Arrays.asList(new MySqlKubeClient(), new SqlServerKubeClient(), new Db2KubeClient(), new OracleKubeClient(), new PostGresKubeClient()));
+        deployments = new LinkedList<KubernetesDBDeployClient>(Arrays.asList(new MySqlKubeClient(), new OracleKubeClient(), new PostGresKubeClient()));
 
         for(KubernetesDBDeployClient c : deployments) {
            new Thread(() -> {

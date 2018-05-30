@@ -84,7 +84,7 @@ public class OracleKubeClient implements KubernetesDBDeployClient{
 
     @Override
     public String getFullJDBC() {
-        return "oracle=jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+getServiceIP()+")(PORT="+getServicePort()+")))(CONNECT_DATA=(SID=orcl)))";
+        return "oracle.jdbc=jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+getServiceIP()+")(PORT="+getServicePort()+")))(CONNECT_DATA=(SID=orcl)))";
     }
 
 
