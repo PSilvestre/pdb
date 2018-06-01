@@ -162,15 +162,20 @@ public class DatabaseConfigurationUtil {
             switch (split = v.split("\\.")[1]) {
                 case "jdbc":
                     //builder.jdbc(prop);
-                    try {
-                        System.err.println("VENDOR: "+ vendor);
-                        FileInputStream fis = new FileInputStream(vendor);
-                        BufferedReader input = new BufferedReader(new InputStreamReader(fis));
-                        String line = input.readLine();
-                        builder.jdbc(line.substring(line.indexOf("=")+1));
+                    if(vendor.equalsIgnoreCase("h2")) {
+                        builder.jdbc(prop);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    }else {
+                        try {
+                            System.err.println("VENDOR: " + vendor);
+                            FileInputStream fis = new FileInputStream(vendor);
+                            BufferedReader input = new BufferedReader(new InputStreamReader(fis));
+                            String line = input.readLine();
+                            builder.jdbc(line.substring(line.indexOf("=") + 1));
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 case "engine":

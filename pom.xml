@@ -398,6 +398,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+														<cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -455,6 +456,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+														<cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -466,7 +468,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>deploy-environment-mysql</id>
+                                <id>deploy-environment-sqlserver</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>java</goal>
@@ -512,7 +514,8 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-                            <classpathScope>test</classpathScope>
+                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
+														<classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -523,7 +526,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>deploy-environment-mysql</id>
+                                <id>deploy-environment-postgresql</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>java</goal>
@@ -574,6 +577,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+														<cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -585,7 +589,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>deploy-environment-mysql</id>
+                                <id>deploy-environment-oracle</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>java</goal>
@@ -646,6 +650,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
+												<cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -657,7 +662,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>deploy-environment-mysql</id>
+                                <id>deploy-environment-db2</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>java</goal>
