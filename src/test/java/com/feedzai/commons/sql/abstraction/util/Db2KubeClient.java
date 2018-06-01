@@ -51,7 +51,7 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
                 .withName("DB2INST1_PASSWORD")
                 .withValue("AaBb12.#")
                 .endEnv()
-                .withCommand("/bin/bash -c",  "echo -e",  "\"AaBb12.#\nAaBb12.#\"", "|", "passwd db2inst1; /usr/bin/su - db2inst1 -c 'db2start; db2 create database testdb; tail -f /dev/null'")
+                .withCommand("/bin/bash", "-c", "echo -e \"$DB2INST1_PASSWORD\\$DB2INST1_PASSWORD\" | passwd db2inst1; /usr/bin/su - db2inst1 -c 'db2start; db2 create database testdb; tail -f /dev/null'")
                 .endContainer()
                 .endSpec()
                 .endTemplate()
