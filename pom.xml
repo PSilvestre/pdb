@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.feedzai</groupId>
     <artifactId>pdb</artifactId>
@@ -133,7 +134,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-           <scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- PostgreSql -->
         <dependency>
@@ -265,11 +266,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <groupId>org.apache.maven.plugins</groupId>
                 <configuration>
-                    <!-- By default only run the H2 tests. -->
                     <failIfNoTests>false</failIfNoTests>
-                    <systemProperties>
-                        <instances>h2</instances>
-                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>
@@ -387,18 +384,31 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.21.0</version>
                         <configuration>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <systemProperties>
                                 <instances>mysql</instances>
                             </systemProperties>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-														<cleanupDaemonThreads>false</cleanupDaemonThreads>
+                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -411,7 +421,7 @@
                         <executions>
                             <execution>
                                 <id>deploy-environment-mysql</id>
-                                <phase>generate-test-resources</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -422,8 +432,8 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>build-test-environment</id>
-                                <phase>test</phase>
+                                <id>tear-down-test-environment</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -445,18 +455,30 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.21.0</version>
                         <configuration>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <systemProperties>
-                                <instances>sqlserver</instances>
+                                <instances>mysql</instances>
                             </systemProperties>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-														<cleanupDaemonThreads>false</cleanupDaemonThreads>
+                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -469,7 +491,7 @@
                         <executions>
                             <execution>
                                 <id>deploy-environment-sqlserver</id>
-                                <phase>generate-test-resources</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -480,8 +502,8 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>build-test-environment</id>
-                                <phase>test</phase>
+                               <id>tear-down-test-environment</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -503,19 +525,31 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.21.0</version>
                         <configuration>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <systemProperties>
-                                <instances>postgresql</instances>
+                                <instances>mysql</instances>
                             </systemProperties>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
                             <cleanupDaemonThreads>false</cleanupDaemonThreads>
-														<classpathScope>test</classpathScope>
+                            <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -527,7 +561,7 @@
                         <executions>
                             <execution>
                                 <id>deploy-environment-postgresql</id>
-                                <phase>generate-test-resources</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -538,8 +572,8 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>build-test-environment</id>
-                                <phase>test</phase>
+                                 <id>tear-down-test-environment</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -561,23 +595,30 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.21.0</version>
                         <configuration>
-                            <!--
-                             The following line is a workaround for "ORA-01882: timezone region not found"
-                             that occurs when the Oracle DB server doesn't have the system timezone
-                             -->
-                            <argLine>-Doracle.jdbc.timezoneAsRegion=false</argLine>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <systemProperties>
-                                <instances>oracle</instances>
+                                <instances>mysql</instances>
                             </systemProperties>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-														<cleanupDaemonThreads>false</cleanupDaemonThreads>
+                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -590,7 +631,7 @@
                         <executions>
                             <execution>
                                 <id>deploy-environment-oracle</id>
-                                <phase>generate-test-resources</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -601,8 +642,8 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>build-test-environment</id>
-                                <phase>test</phase>
+                                <id>tear-down-test-environment</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -639,18 +680,30 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.21.0</version>
                         <configuration>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
                             <systemProperties>
-                                <instances>db2</instances>
+                                <instances>mysql</instances>
                             </systemProperties>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-												<cleanupDaemonThreads>false</cleanupDaemonThreads>
+                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                             <classpathScope>test</classpathScope>
                             <mainClass>com.feedzai.commons.sql.abstraction.util.DeployTestEnvironment</mainClass>
                             <systemProperties>
@@ -663,7 +716,7 @@
                         <executions>
                             <execution>
                                 <id>deploy-environment-db2</id>
-                                <phase>generate-test-resources</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
@@ -674,8 +727,8 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>build-test-environment</id>
-                                <phase>test</phase>
+                                <id>tear-down-test-environment</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
