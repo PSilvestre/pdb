@@ -11,27 +11,32 @@ public class DeployTestEnvironment {
     public static void main(String[] args){
         String command = args[0];
         String[] vendors = System.getProperty("instances").split(",");
-        List<Thread> threads = new LinkedList<>();
+        //List<Thread> threads = new LinkedList<>();
         for(String v : vendors) {
             switch (v.trim()) {
                 case "mysql":
-                    threads.add(new Thread(() -> apply(new MySqlKubeClient(), command)));
+                    //threads.add(new Thread(() -> apply(new MySqlKubeClient(), command)));
+                    apply(new MySqlKubeClient(), command);
                     break;
                 case "sqlserver":
-                    threads.add(new Thread(() -> apply(new SqlServerKubeClient(), command)));
+                    //threads.add(new Thread(() -> apply(new SqlServerKubeClient(), command)));
+                    apply(new SqlServerKubeClient(), command);
                     break;
                 case "oracle":
-                    threads.add(new Thread(() -> apply(new OracleKubeClient(), command)));
+                    //threads.add(new Thread(() -> apply(new OracleKubeClient(), command)));
+                    apply(new OracleKubeClient(), command);
                     break;
                 case "postgresql":
-                    threads.add(new Thread(() -> apply(new PostGresKubeClient(), command)));
+                    //threads.add(new Thread(() -> apply(new PostGresKubeClient(), command)));
+                    apply(new PostGresKubeClient(), command);
                     break;
                 case "db2":
-                    threads.add(new Thread(() -> apply(new Db2KubeClient(), command)));
+                    //threads.add(new Thread(() -> apply(new Db2KubeClient(), command)));
+                    apply(new Db2KubeClient(), command);
                     break;
             }
         }
-        for(Thread t : threads)
+        /*for(Thread t : threads)
             t.start();
 
         for(Thread t : threads) {//Wait for threads to finish;
@@ -40,7 +45,7 @@ public class DeployTestEnvironment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private static void apply(KubernetesDBDeployClient c, String command){
