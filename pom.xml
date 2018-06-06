@@ -601,6 +601,7 @@
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
+                            <argLine>-Doracle.jdbc.timezoneAsRegion=false</argLine>
                             <systemProperties>
                                 <instances>oracle</instances>
                             </systemProperties>
