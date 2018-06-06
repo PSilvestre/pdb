@@ -462,7 +462,7 @@
                                 <include>**/*.java</include>
                             </includes>
                             <systemProperties>
-                                <instances>mysql</instances>
+                                <instances>sqlserver</instances>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -532,7 +532,7 @@
                                 <include>**/*.java</include>
                             </includes>
                             <systemProperties>
-                                <instances>mysql</instances>
+                                <instances>postgresql</instances>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -602,7 +602,7 @@
                                 <include>**/*.java</include>
                             </includes>
                             <systemProperties>
-                                <instances>mysql</instances>
+                                <instances>oracle</instances>
                             </systemProperties>
                         </configuration>
                         <executions>
@@ -687,7 +687,7 @@
                                 <include>**/*.java</include>
                             </includes>
                             <systemProperties>
-                                <instances>mysql</instances>
+                                <instances>db2</instances>
                             </systemProperties>
                         </configuration>
                         <executions>
