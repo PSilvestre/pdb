@@ -516,7 +516,7 @@ public abstract class AbstractEngineSchemaTest {
      *
      * @since 2.1.8
      */
-    
+    /*
     @Test
     public void testDefaultAllowColumnDrop() throws DatabaseFactoryException, DatabaseEngineException {
         // copy to make sure we don't have an allow column drop defined
@@ -581,8 +581,7 @@ public abstract class AbstractEngineSchemaTest {
             }
             engine.close();
         }
-    }
-
+    }*/
     /**
      * Auxiliary method that checks that the inserted value is indeed the provided column value.
      *
