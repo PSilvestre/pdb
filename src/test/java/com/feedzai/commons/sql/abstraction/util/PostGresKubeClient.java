@@ -13,6 +13,7 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
     public static final String DEPLOYMENT_NAME = "postgresql-dep";
     public static final String NAMESPACE = "default";
     public static final String VENDOR = "postgresql";
+    private static final int PORT = 5432;
 
     private Config config;
     private KubernetesClient client;
@@ -40,7 +41,7 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
                 .withName("postgresql")
                 .withImage("postgres:9.6.8")
                 .addNewPort()
-                .withContainerPort(5432)
+                .withContainerPort(PORT)
                 .endPort()
                 .addNewEnv()
                 .withName("POSTGRES_PASSWORD")
@@ -56,7 +57,7 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
                 .withNewMetadata()
                 .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(5432).withNewTargetPort(5432).endPort()
+                .withPort(PORT).withNewTargetPort(PORT).endPort()
                 .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
@@ -88,6 +89,26 @@ public class PostGresKubeClient implements KubernetesDBDeployClient{
     @Override
     public String getFullJDBC() {
         return "postgresql.jdbc=jdbc:postgresql://"+getServiceIP()+":"+getServicePort()+"/postgres";
+    }
+
+    @Override
+    public int getInternalPort() {
+        return PORT;
+    }
+
+    @Override
+    public String getInternalIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getPodIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullInternalJDBC() {
+        return "postgresql.jdbc=jdbc:postgresql://"+getInternalIP()+":"+getInternalPort()+"/postgres";
     }
 
 

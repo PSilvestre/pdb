@@ -415,6 +415,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>mysql</value>
+                                    <key>cluster-internal</key>
+                                    <value>True</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -485,6 +487,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>sqlserver</value>
+                                    <key>cluster-internal</key>
+                                    <value>True</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -555,6 +559,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>postgresql</value>
+                                    <key>cluster-internal</key>
+                                    <value>True</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -626,6 +632,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>oracle</value>
+                                    <key>cluster-internal</key>
+                                    <value>True</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -711,6 +719,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>db2</value>
+                                    <key>cluster-internal</key>
+                                    <value>True</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>

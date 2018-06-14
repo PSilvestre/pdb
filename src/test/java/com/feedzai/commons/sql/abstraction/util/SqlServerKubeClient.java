@@ -13,6 +13,7 @@ public class SqlServerKubeClient implements KubernetesDBDeployClient{
     public static final String DEPLOYMENT_NAME = "sqlserver-dep";
     public static final String NAMESPACE = "default";
     public static final String VENDOR = "sqlserver";
+    private static final int PORT = 1433;
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
@@ -40,7 +41,7 @@ public class SqlServerKubeClient implements KubernetesDBDeployClient{
                 .withName("sqlserver")
                 .withImage("microsoft/mssql-server-linux:2017-CU6")
                 .addNewPort()
-                .withContainerPort(1433)
+                .withContainerPort(PORT)
                 .endPort()
                 .addNewEnv()
                 .withName("ACCEPT_EULA")
@@ -60,7 +61,7 @@ public class SqlServerKubeClient implements KubernetesDBDeployClient{
                 .withNewMetadata()
                 .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(1433).withNewTargetPort(1433).endPort()
+                .withPort(PORT).withNewTargetPort(PORT).endPort()
                 .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
@@ -96,6 +97,26 @@ public class SqlServerKubeClient implements KubernetesDBDeployClient{
         return "sqlserver.jdbc=jdbc:sqlserver://" + getServiceIP()+":" + getServicePort();
     }
 
+
+    @Override
+    public int getInternalPort() {
+        return PORT;
+    }
+
+    @Override
+    public String getInternalIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getPodIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullInternalJDBC() {
+        return "sqlserver.jdbc=jdbc:sqlserver://"+getInternalIP()+":"+getInternalPort();
+    }
 
     @Override
     public void tearDown(){

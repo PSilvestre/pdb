@@ -13,6 +13,7 @@ public class OracleKubeClient implements KubernetesDBDeployClient{
     public static final String DEPLOYMENT_NAME = "oracle-dep";
     public static final String NAMESPACE = "default";
     public static final String VENDOR = "oracle";
+    private static final int PORT = 1521;
     private Config config;
     private KubernetesClient client;
     private Deployment deployment;
@@ -40,7 +41,7 @@ public class OracleKubeClient implements KubernetesDBDeployClient{
                 .withName("oracle")
                 .withImage("docker.io/filemon/oracle_11g:latest")
                 .addNewPort()
-                .withContainerPort(1521)
+                .withContainerPort(PORT)
                 .endPort()
                 .endContainer()
                 .endSpec()
@@ -52,7 +53,7 @@ public class OracleKubeClient implements KubernetesDBDeployClient{
                 .withNewMetadata()
                 .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(1521).withNewTargetPort(1521).endPort()
+                .withPort(PORT).withNewTargetPort(PORT).endPort()
                 .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
@@ -87,6 +88,25 @@ public class OracleKubeClient implements KubernetesDBDeployClient{
         return "oracle.jdbc=jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+getServiceIP()+")(PORT="+getServicePort()+")))(CONNECT_DATA=(SID=orcl)))";
     }
 
+    @Override
+    public int getInternalPort() {
+        return PORT;
+    }
+
+    @Override
+    public String getInternalIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getPodIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullInternalJDBC() {
+        return "oracle.jdbc=jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST="+getInternalIP()+")(PORT="+getInternalPort()+")))(CONNECT_DATA=(SID=orcl)))";
+    }
 
     @Override
     public void tearDown(){

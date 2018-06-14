@@ -11,44 +11,35 @@ public class DeployTestEnvironment {
     public static void main(String[] args){
         String command = args[0];
         String[] vendors = System.getProperty("instances").split(",");
+        boolean internal = Boolean.parseBoolean(System.getProperty("cluster-internal"));
         //List<Thread> threads = new LinkedList<>();
         for(String v : vendors) {
             switch (v.trim()) {
                 case "mysql":
                     //threads.add(new Thread(() -> apply(new MySqlKubeClient(), command)));
-                    apply(new MySqlKubeClient(), command);
+                    apply(new MySqlKubeClient(), command, internal);
                     break;
                 case "sqlserver":
                     //threads.add(new Thread(() -> apply(new SqlServerKubeClient(), command)));
-                    apply(new SqlServerKubeClient(), command);
+                    apply(new SqlServerKubeClient(), command, internal);
                     break;
                 case "oracle":
                     //threads.add(new Thread(() -> apply(new OracleKubeClient(), command)));
-                    apply(new OracleKubeClient(), command);
+                    apply(new OracleKubeClient(), command, internal);
                     break;
                 case "postgresql":
                     //threads.add(new Thread(() -> apply(new PostGresKubeClient(), command)));
-                    apply(new PostGresKubeClient(), command);
+                    apply(new PostGresKubeClient(), command, internal);
                     break;
                 case "db2":
                     //threads.add(new Thread(() -> apply(new Db2KubeClient(), command)));
-                    apply(new Db2KubeClient(), command);
+                    apply(new Db2KubeClient(), command, internal);
                     break;
             }
         }
-        /*for(Thread t : threads)
-            t.start();
-
-        for(Thread t : threads) {//Wait for threads to finish;
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
-    private static void apply(KubernetesDBDeployClient c, String command){
+    private static void apply(KubernetesDBDeployClient c, String command, boolean internal){
         if (command.equalsIgnoreCase(COMMANDS.DEPLOY.name())) {
             c.createDeployment();
             c.createService();
@@ -58,6 +49,11 @@ public class DeployTestEnvironment {
                 e.printStackTrace();
             }
             try (FileOutputStream fos = new FileOutputStream(c.getVendor())) {
+                if(internal) {
+                    System.err.println(c.getFullInternalJDBC());
+                    fos.write(c.getFullInternalJDBC().getBytes());
+                }
+                else
                     fos.write((c.getFullJDBC()).getBytes());
             } catch (IOException e) {
                 e.printStackTrace();

@@ -13,6 +13,7 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
     public static final String DEPLOYMENT_NAME = "mysql-dep";
     public static final String NAMESPACE = "default";
     private static final String VENDOR = "mysql";
+    private static final int PORT = 3306;
 
     private Config config;
     private KubernetesClient client;
@@ -20,6 +21,7 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
     private Service service;
 
     public MySqlKubeClient() {
+
         config = new ConfigBuilder().build();
         client = new DefaultKubernetesClient(config);
 
@@ -42,7 +44,7 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
                 .withName("mysql")
                 .withImage("mysql:5.7.22")
                 .addNewPort()
-                .withContainerPort(3306)
+                .withContainerPort(PORT)
                 .endPort()
                 .addNewEnv()
                 .withName("MYSQL_ROOT_PASSWORD")
@@ -55,11 +57,11 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
                 .endSpec()
                 .build();
 
-        service = new ServiceBuilder()
+            service = new ServiceBuilder()
                 .withNewMetadata()
                 .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(3306).withNewTargetPort(3306).endPort()
+                .withPort(PORT).withNewTargetPort(PORT).endPort()
                 .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
@@ -98,6 +100,26 @@ public class MySqlKubeClient implements KubernetesDBDeployClient{
     public void tearDown(){
         client.services().inNamespace(NAMESPACE).withField("metadata.name", SERVICE_NAME).delete();
         client.extensions().deployments().inNamespace(NAMESPACE).withField("metadata.name", DEPLOYMENT_NAME).delete();
+    }
+
+    @Override
+    public int getInternalPort() {
+        return PORT;
+    }
+
+    @Override
+    public String getInternalIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getPodIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullInternalJDBC() {
+        return "mysql.jdbc=jdbc:mysql://"+getInternalIP()+":"+getInternalPort()+"/mysql?useSSL=false";
     }
 
     @Override

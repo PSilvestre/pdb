@@ -8,7 +8,9 @@ public interface KubernetesDBDeployClient {
     String getServiceIP();
     String getFullJDBC();
     void tearDown();
-
+    int getInternalPort();
+    String getInternalIP();
+    String getFullInternalJDBC();
     String getVendor();
 
     long getSleepTime();
