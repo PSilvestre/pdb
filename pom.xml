@@ -415,6 +415,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>mysql</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <key>cluster-internal</key>
                                     <value>True</value>
                                 </systemProperty>
@@ -487,6 +489,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>sqlserver</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <key>cluster-internal</key>
                                     <value>True</value>
                                 </systemProperty>
@@ -559,6 +563,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>postgresql</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <key>cluster-internal</key>
                                     <value>True</value>
                                 </systemProperty>
@@ -632,6 +638,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>oracle</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <key>cluster-internal</key>
                                     <value>True</value>
                                 </systemProperty>
@@ -719,6 +727,8 @@
                                 <systemProperty>
                                     <key>instances</key>
                                     <value>db2</value>
+                                </systemProperty>
+                                <systemProperty>
                                     <key>cluster-internal</key>
                                     <value>True</value>
                                 </systemProperty>
