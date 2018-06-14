@@ -13,6 +13,7 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
     public static final String DEPLOYMENT_NAME = "db2-dep";
     public static final String NAMESPACE = "default";
     public static final String VENDOR = "db2";
+    private static final int PORT = 50000;
 
     private Config config;
     private KubernetesClient client;
@@ -41,7 +42,7 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
                 .withName("db2")
                 .withImage("ibmcom/db2express-c:10.5.0.5-3.10.0")
                 .addNewPort()
-                .withContainerPort(50000)
+                .withContainerPort(PORT)
                 .endPort()
                 .addNewEnv()
                 .withName("LICENSE")
@@ -62,7 +63,7 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
                 .withNewMetadata()
                 .withName(SERVICE_NAME)
                 .endMetadata().withNewSpec().withType("NodePort").addNewPort()
-                .withPort(50000).withNewTargetPort(50000).endPort()
+                .withPort(PORT).withNewTargetPort(PORT).endPort()
                 .addToSelector("app", SERVICE_NAME).endSpec().build();
 
     }
@@ -97,6 +98,26 @@ public class Db2KubeClient implements KubernetesDBDeployClient{
     @Override
     public String getFullJDBC() {
         return "db2.jdbc=jdbc:db2://"+getServiceIP()+":"+getServicePort()+"/testdb";
+    }
+
+    @Override
+    public int getInternalPort() {
+        return PORT;
+    }
+
+    @Override
+    public String getInternalIP() {
+        String ip = null;
+        while (ip == null)
+            for (Pod p : client.pods().list().getItems())
+                if (p.getMetadata().getName().startsWith(SERVICE_NAME))
+                    ip = p.getStatus().getPodIP();
+        return ip;
+    }
+
+    @Override
+    public String getFullInternalJDBC() {
+        return "db2.jdbc=jdbc:db2://"+getInternalIP()+":"+getInternalPort()+"/testdb";
     }
 
     @Override
